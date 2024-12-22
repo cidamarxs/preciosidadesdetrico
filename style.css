@@ -1,0 +1,93 @@
+/* Estilo geral */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #ffebef; /* Rosa claro */
+    color: #000; /* Preto para texto */
+    text-align: center;
+  }
+  
+  /* Cabeçalho */
+  header {
+    font-family: 'Pacifico', cursive;
+    background-color: #c2185b; /* Rosa escuro */
+    color: #fff;
+   padding: 10px 20px;
+    text-align: center;
+  }
+  
+  header h1,h2,h3 {
+    font-family: 'Pacifico', cursive;
+    margin-left: 10px;
+    text-align: center;
+    text-decoration: wavy;
+  }
+ 
+  /* Menu lateral */
+  .sidebar {
+    background-color: #c2185b;
+    color: #fff;
+    width: 200px;
+    height: 100vh;
+    position: fixed;
+    padding-top: 20px;
+  }
+  
+  .sidebar ul {   
+    list-style: none; /* Remove os marcadores */
+    padding: 0;
+  }
+  
+  .sidebar ul li {
+    margin: 10px 0;
+  }
+  
+  .sidebar ul li a {
+    color: #ffebef; /* Rosa claro */
+    text-decoration: none;
+    padding: 10px;
+    display: block;
+  }
+  
+  .sidebar ul li a:hover {
+    text-decoration: none;
+  }
+  
+  /* Conteúdo principal */
+  .container {
+    display: flex;
+  }
+  
+  main {
+    margin-left: 220px;
+    padding: 20px;
+  }
+  
+  main h2 {
+    color: #880e4f;
+    display: flex;
+    font-family: 'Alex Brush', cursive;
+    align-items: center;
+  }
+    
+  /* Rodapé */
+  footer {
+    background-color: #c2185b;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+  
+  /* Links na seção principal */
+  a {
+    color: #ffebef;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: none;
+  }
+  

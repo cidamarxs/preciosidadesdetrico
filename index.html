@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receitas de Tricô</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js" defer></script>
+
+</head>
+<body>
+    <header>
+        <h1>Receitas de Tricô</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Início</a></li>
+           </ul>
+        </nav>
+    </header>
+
+    <aside id="menu-lateral">
+        <h3>Tags</h3>
+        <ul id="menu"></ul>
+    </aside>
+
+    <main>
+        <div id="admin-section" style="display: none;">
+            <h2>Área da Administradora</h2>
+            <div id="form-container">
+                <form id="recipe-form" method="post">
+                    <label for="recipe-title">Nome da Receita:</label>
+                    <input type="text" id="recipe-title" name="recipe-title" required>
+
+                    <label for="recipe-tags">Tags:</label>
+                    <input type="text" id="recipe-tags" name="recipe-tags">
+
+                    <label for="recipe-content">Conteúdo:</label>
+                    <textarea id="recipe-content" name="recipe-content" required></textarea>
+
+                    <label for="recipe-file">Anexar Arquivo:</label>
+                    <input type="file" id="recipe-file" name="recipe-file">
+
+                    <button type="submit">Adicionar Receita</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="recipes">
+            <!-- Receitas carregadas dinamicamente -->
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2024 Receitas de Tricô</p>
+    </footer>
+</body>
+</html>
