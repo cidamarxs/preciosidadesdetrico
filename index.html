@@ -1,57 +1,72 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receitas de Tricô</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="app.js" defer></script>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preciosidadddes de Tricô</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="icon-192.png" sizes="192x192">
+  <link rel="stylesheet" href="style.css">
+  <!-- Apenas uma vez com defer -->
+  <script src="app.js" defer></script>
 </head>
 <body>
-    <header>
-        <h1>Receitas de Tricô</h1>
-        <nav>
-            <ul>
-                <li><a href="#">Início</a></li>
-           </ul>
-        </nav>
-    </header>
+  <header>
+    <h1>Preciosidades de Tricô</h1>
+  </header>
+  
+  <aside>
+    <h3>Tags</h3>
+    <ul id="tag-menu"></ul>
+  </aside>
+  
+  <main>
+    <section id="login-section">
+      <form id="login-form">
+        <input type="text" id="username" placeholder="Usuário" required>
+        <input type="password" id="password" placeholder="Senha" required>
+        <button type="submit">Entrar</button>
+      </form>
+    </section>
+    
+    <section id="recipes-section" style="display: none;">
+      <button id="logout-btn">Sair</button>
+      <h2>Receitas</h2>
+      <ul id="recipe-list"></ul>
+      <form id="add-recipe-form">
+        <input type="text" id="recipe-name" placeholder="Nome da receita" required>
+        <textarea id="recipe-description" placeholder="Descrição da receita" required></textarea>
+        <input type="text" id="tag-input" placeholder="Tags (separadas por vírgula)" required>
+        <input type="file" id="recipe-file">
+        <button type="submit">Adicionar Receita</button>
+      </form>
+    </section>
+  </main>
 
-    <aside id="menu-lateral">
-        <h3>Tags</h3>
-        <ul id="menu"></ul>
-    </aside>
-
-    <main>
-        <div id="admin-section" style="display: none;">
-            <h2>Área da Administradora</h2>
-            <div id="form-container">
-                <form id="recipe-form" method="post">
-                    <label for="recipe-title">Nome da Receita:</label>
-                    <input type="text" id="recipe-title" name="recipe-title" required>
-
-                    <label for="recipe-tags">Tags:</label>
-                    <input type="text" id="recipe-tags" name="recipe-tags">
-
-                    <label for="recipe-content">Conteúdo:</label>
-                    <textarea id="recipe-content" name="recipe-content" required></textarea>
-
-                    <label for="recipe-file">Anexar Arquivo:</label>
-                    <input type="file" id="recipe-file" name="recipe-file">
-
-                    <button type="submit">Adicionar Receita</button>
-                </form>
-            </div>
-        </div>
-
-        <div id="recipes">
-            <!-- Receitas carregadas dinamicamente -->
-        </div>
-    </main>
-
-    <footer>
-        <p>© 2024 Receitas de Tricô</p>
-    </footer>
+  <footer>
+    <p>&copy; 2025 Preciosidades de Tricô by Cida Marxs. Todos os direitos reservados.</p>
+  </footer>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', function(event) {
+      event.preventDefault();  // Impede o envio do formulário
+      
+      // Simulação de verificação de login (substitua por lógica real)
+      let username = document.getElementById('username').value;
+      let password = document.getElementById('password').value;
+  
+      // Verificação simples de login (substitua com sua lógica de autenticação real)
+      if (username === "preciosidade" && password === "preciosidade") {
+        // Ocultar o formulário de login
+        document.getElementById('login-section').style.display = 'none';
+  
+        // Você pode mostrar um painel de boas-vindas ou redirecionar para a página inicial
+        alert('Login bem-sucedido! Bem-vindo, ' + username + '!');
+        // Exemplo de redirecionamento
+        // window.location.href = 'pagina_inicial.html';
+      } else {
+        alert('Usuário ou senha incorretos!');
+      }
+    });
+  </script> 
 </body>
 </html>
