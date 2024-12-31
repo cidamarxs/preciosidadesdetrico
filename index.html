@@ -1,72 +1,67 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Preciosidadddes de Tricô</title>
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="icon-192.png" sizes="192x192">
-  <link rel="stylesheet" href="style.css">
-  <!-- Apenas uma vez com defer -->
-  <script src="app.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preciosidades de Tricô</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-database-compat.js"></script>
+    <script src="app.js" defer></script>
 </head>
 <body>
-  <header>
-    <h1>Preciosidades de Tricô</h1>
-  </header>
-  
-  <aside>
-    <h3>Tags</h3>
-    <ul id="tag-menu"></ul>
-  </aside>
-  
-  <main>
-    <section id="login-section">
-      <form id="login-form">
-        <input type="text" id="username" placeholder="Usuário" required>
-        <input type="password" id="password" placeholder="Senha" required>
-        <button type="submit">Entrar</button>
-      </form>
-    </section>
-    
-    <section id="recipes-section" style="display: none;">
-      <button id="logout-btn">Sair</button>
-      <h2>Receitas</h2>
-      <ul id="recipe-list"></ul>
-      <form id="add-recipe-form">
-        <input type="text" id="recipe-name" placeholder="Nome da receita" required>
-        <textarea id="recipe-description" placeholder="Descrição da receita" required></textarea>
-        <input type="text" id="tag-input" placeholder="Tags (separadas por vírgula)" required>
-        <input type="file" id="recipe-file">
-        <button type="submit">Adicionar Receita</button>
-      </form>
-    </section>
-  </main>
+    <header>
+        <h1>Preciosidades de Tricô</h1>
+    </header>
 
-  <footer>
-    <p>&copy; 2025 Preciosidades de Tricô by Cida Marxs. Todos os direitos reservados.</p>
-  </footer>
-  <script>
-    document.getElementById('login-form').addEventListener('submit', function(event) {
-      event.preventDefault();  // Impede o envio do formulário
-      
-      // Simulação de verificação de login (substitua por lógica real)
-      let username = document.getElementById('username').value;
-      let password = document.getElementById('password').value;
-  
-      // Verificação simples de login (substitua com sua lógica de autenticação real)
-      if (username === "preciosidade" && password === "preciosidade") {
-        // Ocultar o formulário de login
-        document.getElementById('login-section').style.display = 'none';
-  
-        // Você pode mostrar um painel de boas-vindas ou redirecionar para a página inicial
-        alert('Login bem-sucedido! Bem-vindo, ' + username + '!');
-        // Exemplo de redirecionamento
-        // window.location.href = 'pagina_inicial.html';
-      } else {
-        alert('Usuário ou senha incorretos!');
-      }
-    });
-  </script> 
+    <aside class="sidebar">
+        <h3>Tags</h3>
+        <ul id="tag-menu"></ul>
+    </aside>
+
+    <main>
+        <section id="login-section">
+            <h2>Login</h2>
+            <div id="login-error" style="display: none; color: red;"></div>
+            <form id="login-form">
+                <input type="email" id="login-email" class="input-field" placeholder="E-mail" required>
+                <input type="password" id="login-password" class="input-field" placeholder="Senha" required>
+                <button type="submit" class="btn">Entrar</button>
+            </form>
+            <p>Não tem uma conta? <button id="show-signup" class="btn">Cadastre-se</button></p>
+        </section>
+
+        <section id="signup-section" style="display: none;">
+            <h2>Cadastro</h2>
+            <div id="signup-error" style="display: none; color: red;"></div>
+            <form id="signup-form">
+                <input type="text" id="signup-username" class="input-field" placeholder="Nome de usuário" required>
+                <input type="email" id="signup-email" class="input-field" placeholder="E-mail" required>
+                <input type="password" id="signup-password" class="input-field" placeholder="Senha" required>
+                <input type="password" id="signup-password-confirm" class="input-field" placeholder="Confirmar senha" required>
+                <button type="submit" class="btn">Cadastrar</button>
+            </form>
+            <p>Já tem uma conta? <button id="show-login" class="btn">Entrar</button></p>
+        </section>
+
+        <section id="recipes-section" style="display: none;">
+            <button id="logout-btn" class="btn">Sair</button>
+            <h2>Receitas</h2>
+            <ul id="recipe-list"></ul>
+            <form id="add-recipe-form">
+                <input type="text" id="recipe-name" class="input-field" placeholder="Nome da receita" required>
+                <textarea id="recipe-description" class="input-field" placeholder="Descrição da receita" required></textarea>
+                <input type="text" id="tag-input" class="input-field" placeholder="Tags (separadas por vírgula)" required>
+                <input type="file" id="recipe-file" class="input-field">
+                <button type="submit" class="btn">Adicionar Receita</button>
+            </form>
+            <div id="loading-message" style="display: none;">Carregando receitas...</div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Preciosidades de Tricô by Cida Marxs. Todos os direitos reservados.</p>
+    </footer>
 </body>
 </html>

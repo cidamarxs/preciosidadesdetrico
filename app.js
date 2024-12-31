@@ -1,150 +1,173 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const validUser = { username: "preciosidade", password: "preciosidade" }; // Credenciais de login fixas
+  // *** CONFIGURAÇÃO DO FIREBASE (CRUCIAL - REMOVA DO HTML) ***
+  const firebaseConfig = {
+      apiKey: "AIzaSyDvrty4zjeuNMYu8TuQuf49LihZWuiAlgE", // *** NUNCA EXPOR EM PRODUÇÃO! ***
+      authDomain: "preciosidades-de-trico.firebaseapp.com",
+      databaseURL: "https://preciosidades-de-trico-default-rtdb.firebaseio.com",
+      projectId: "preciosidades-de-trico",
+      storageBucket: "preciosidades-de-trico.firebasestorage.app",
+      messagingSenderId: "53723311991",
+      appId: "1:53723311991:web:b32af8acafada569287b72"
+  };
+
+  // Inicializa o Firebase apenas uma vez
+  if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+  }
+
+  const auth = firebase.auth();
+  const database = firebase.database();
+  const recipesRef = database.ref('recipes'); // Referência para as receitas
+
+  // *** REFERÊNCIAS AOS ELEMENTOS DO DOM (PARA MELHOR MANUTENÇÃO) ***
   const loginSection = document.getElementById("login-section");
+  const signupSection = document.getElementById("signup-section");
   const recipesSection = document.getElementById("recipes-section");
-  const recipeList = document.getElementById("recipe-list");
+  const loginForm = document.getElementById("login-form");
+  const signupForm = document.getElementById("signup-form");
   const addRecipeForm = document.getElementById("add-recipe-form");
-  const logoutBtn = document.getElementById("logout-btn");
-  const tagMenu = document.getElementById("tag-menu"); // Menu de tags
-  const loginErrorDiv = document.getElementById("login-error"); // Div para erro de login
+  const recipeList = document.getElementById("recipe-list");
+  const tagMenu = document.getElementById("tag-menu");
+  const loadingMessage = document.getElementById('loading-message');
 
-  // Função para exibir a seção de receitas após login
+
+  // *** FUNÇÕES AUXILIARES ***
   function showRecipesSection() {
-    recipesSection.style.display = "block";  // Mostrar a seção de receitas
+      loginSection.style.display = "none";
+      signupSection.style.display = "none";
+      recipesSection.style.display = "block";
   }
 
-  // Função para salvar receitas no localStorage
-  function saveRecipesToLocalStorage(recipes) {
-    localStorage.setItem("recipes", JSON.stringify(recipes));
+  function hideAllSections() {
+      loginSection.style.display = "none";
+      signupSection.style.display = "none";
+      recipesSection.style.display = "none";
   }
 
-  // Função para carregar receitas do localStorage
-  function loadRecipesFromLocalStorage() {
-    return JSON.parse(localStorage.getItem("recipes")) || [];
-  }
-
-  // Função para renderizar receitas na interface
   function renderRecipes(recipes) {
-    recipeList.innerHTML = ""; // Limpar lista de receitas
-    recipes.forEach((recipe, index) => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <strong>${recipe.name}</strong><br>
-        <p>${recipe.description}</p>
-        <p><i>Tags: ${recipe.tags.join(", ")}</i></p>
-        ${
-          recipe.fileURL
-            ? `<a href="${recipe.fileURL}" target="_blank">Abrir Arquivo</a>`
-            : ""
-        }
-        <button class="delete-btn" data-index="${index}">Excluir</button>
-      `;
-      li.querySelector('.delete-btn').addEventListener('click', (event) => {
-        const indexToDelete = event.target.getAttribute('data-index');
-        recipes.splice(indexToDelete, 1); // Excluir receita
-        saveRecipesToLocalStorage(recipes); // Atualizar localStorage
-        renderRecipes(recipes); // Atualizar a lista de receitas
-        renderTags(recipes); // Atualizar as tags
+      recipeList.innerHTML = ""; // Limpa a lista antes de renderizar
+      recipes.forEach(recipe => {
+          const li = document.createElement('li');
+          li.textContent = `${recipe.name} - ${recipe.description}`;
+          recipeList.appendChild(li);
       });
-      recipeList.appendChild(li);
-    });
   }
 
-  // Função para renderizar tags no menu lateral
   function renderTags(recipes) {
-    tagMenu.innerHTML = ""; // Limpar menu de tags
-    const allTags = [...new Set(recipes.flatMap((recipe) => recipe.tags))].sort(); // Tags únicas e ordenadas
+      const allTags = [...new Set(recipes.flatMap(recipe => recipe.tags))];
+      tagMenu.innerHTML = allTags.map(tag => `
+          <li><a href="#" data-tag="${tag}" class="tag-link">${tag}</a></li>
+      `).join("");
+  }
 
-    allTags.forEach((tag) => {
-      const li = document.createElement("li");
-      li.innerHTML = `<a href="#" data-tag="${tag}" class="tag-link">${tag}</a>`;
-      li.addEventListener("click", () => {
-        // Adicionar classe 'active' ao item selecionado
-        document.querySelectorAll(".tag-link").forEach((link) => link.classList.remove("active"));
-        li.querySelector("a").classList.add("active");
-        const filteredRecipes = recipes.filter((recipe) => recipe.tags.includes(tag));
-        renderRecipes(filteredRecipes); // Filtrar receitas por tag
+  function loadRecipes() {
+      loadingMessage.style.display = "block";
+      recipesRef.on('value', (snapshot) => {
+          loadingMessage.style.display = "none";
+          const recipes = snapshot.val() || {};
+          const recipeArray = Object.values(recipes);
+          renderRecipes(recipeArray);
+          renderTags(recipeArray);
       });
-      tagMenu.appendChild(li);
-    });
   }
 
-  // Verificar se o usuário já está logado
-  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-
-  const recipes = loadRecipesFromLocalStorage(); // Carregar receitas do localStorage
-  renderRecipes(recipes); // Renderizar receitas
-  renderTags(recipes); // Renderizar tags no menu lateral
-
-  if (isLoggedIn) {
-    showRecipesSection(); // Exibir a seção de receitas apenas se logado
-    addRecipeForm.style.display = "block"; // Exibir formulário de adicionar receita se logado
-    loginSection.style.display = "none"; // Esconder login
-  } else {
-    loginSection.style.display = "block"; // Exibir a seção de login caso contrário
-    recipesSection.style.display = "block"; // Ainda mostrar receitas
-    addRecipeForm.style.display = "none"; // Ocultar formulário de adicionar receita
-  }
-
-  // Evento de login
-  document.getElementById("login-form").addEventListener("submit", (event) => {
-    event.preventDefault(); // Evitar comportamento padrão
-
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
-
-    if (username === validUser.username && password === validUser.password) {
-      localStorage.setItem("isLoggedIn", "true"); // Salvar estado de login
-      showRecipesSection(); // Exibir a seção de receitas
-      addRecipeForm.style.display = "block"; // Exibir formulário de adicionar receita
-      loginSection.style.display = "none"; // Esconder login
-      loginErrorDiv.style.display = "none"; // Esconder mensagem de erro
-    } else {
-      loginErrorDiv.textContent = "Usuário ou senha inválidos!"; // Exibir mensagem de erro
-      loginErrorDiv.style.display = "block";
-    }
-  });
-
-  // Evento de logout
-  logoutBtn.addEventListener("click", () => {
-    localStorage.removeItem("isLoggedIn"); // Remover estado de login
-    loginSection.style.display = "block"; // Mostrar seção de login
-    recipesSection.style.display = "block"; // Mostrar receitas ao público
-    addRecipeForm.style.display = "none"; // Ocultar formulário de adicionar receita
-    renderRecipes(recipes); // Exibir receitas para o público
-  });
-
-  // Evento para adicionar uma nova receita (Somente visível para usuários logados)
-  if (isLoggedIn) {
-    addRecipeForm.style.display = "block"; // Mostrar formulário de adicionar receita
-    addRecipeForm.addEventListener("submit", (event) => {
+  // *** LÓGICA DE CADASTRO (COM TRATAMENTO DE ERROS, CONFIRMAÇÃO DE SENHA E PREVENT DEFAULT) ***
+  signupForm.addEventListener('submit', (event) => {
       event.preventDefault();
 
-      const name = document.getElementById("recipe-name").value.trim();
-      const description = document.getElementById("recipe-description").value.trim();
-      const tags = document.getElementById("tag-input").value.split(",").map((tag) => tag.trim());
-      const fileInput = document.getElementById("recipe-file");
-      const file = fileInput.files[0];
-      const fileURL = file ? URL.createObjectURL(file) : null;
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value.trim();
+      const confirmPassword = document.getElementById('signup-password-confirm').value.trim();
+      const signupErrorDiv = document.getElementById('signup-error');
 
-      // Verificação do tipo de arquivo (apenas arquivos permitidos)
-      const validFileTypes = ['image/jpeg', 'image/png', 'application/pdf', 'text/plain'];
-      if (file && !validFileTypes.includes(file.type)) {
-        alert('Arquivo inválido! Por favor, envie uma imagem (JPG/PNG), PDF ou TXT.');
-        return;
+      signupErrorDiv.style.display = 'none';
+
+      if (password !== confirmPassword) {
+          signupErrorDiv.textContent = "As senhas não conferem.";
+          signupErrorDiv.style.display = 'block';
+          return;
       }
 
-      if (name && description && tags.length > 0) {
-        const newRecipe = { name, description, tags, fileURL };
-        recipes.push(newRecipe);
-        saveRecipesToLocalStorage(recipes); // Salvar no localStorage
-        renderRecipes([newRecipe]); // Adicionar nova receita à lista
-        renderTags(recipes); // Atualizar o menu de tags
-        addRecipeForm.reset(); // Limpar o formulário
-        alert("Receita adicionada com sucesso!");
-      } else {
-        alert("Preencha todos os campos obrigatórios!");
+      auth.createUserWithEmailAndPassword(email, password)
+          .then(() => {
+              alert('Cadastro bem-sucedido! Agora, você pode fazer login.');
+              signupSection.style.display = 'none';
+              loginSection.style.display = 'block';
+          })
+          .catch((error) => {
+              signupErrorDiv.textContent = 'Erro ao cadastrar: ' + error.message;
+              signupErrorDiv.style.display = 'block';
+              console.error("Erro no cadastro:", error); // Log do erro no console
+          });
+  });
+
+  // *** LÓGICA DE LOGIN (COM PREVENT DEFAULT E TRATAMENTO DE ERROS) ***
+  loginForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+      const loginErrorDiv = document.getElementById('login-error');
+      loginErrorDiv.style.display = 'none';
+
+      auth.signInWithEmailAndPassword(email, password)
+          .then(() => {
+              showRecipesSection();
+              loadRecipes();
+          })
+          .catch((error) => {
+              loginErrorDiv.textContent = 'Erro ao logar: ' + error.message;
+              loginErrorDiv.style.display = 'block';
+              console.error("Erro no login:", error);
+          });
+  });
+
+  // *** LÓGICA PARA MOSTRAR/OCULTAR SEÇÕES DE LOGIN/CADASTRO ***
+  document.getElementById('show-login').addEventListener('click', () => {
+      signupSection.style.display = 'none';
+      loginSection.style.display = 'block';
+  });
+
+  document.getElementById('show-signup').addEventListener('click', () => {
+      loginSection.style.display = 'none';
+      signupSection.style.display = 'block';
+  });
+
+  // *** LÓGICA DE LOGOUT ***
+  document.getElementById('logout-btn').addEventListener('click', () => {
+      auth.signOut().then(() => {
+          hideAllSections();
+          loginSection.style.display = 'block';
+      }).catch((error) => {
+          console.error("Erro ao sair:", error);
+      });
+  });
+
+  // *** LÓGICA PARA ADICIONAR UMA RECEITA ***
+  addRecipeForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const recipeName = document.getElementById('recipe-name').value;
+      const recipeDescription = document.getElementById('recipe-description').value;
+      const tags = document.getElementById('tag-input').value.split(',').map(tag => tag.trim());
+
+      const newRecipe = {
+          name: recipeName,
+          description: recipeDescription,
+          tags: tags
+      };
+
+      recipesRef.push(newRecipe);
+
+      alert('Receita adicionada com sucesso!');
+      addRecipeForm.reset(); // Limpa o formulário
+  });
+
+  //Carrega as receitas ao iniciar a aplicação após o login
+  auth.onAuthStateChanged(user => {
+      if(user) {
+          showRecipesSection();
+          loadRecipes();
       }
-    });
-  }
+  })
 });
