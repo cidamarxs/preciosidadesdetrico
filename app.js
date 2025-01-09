@@ -1,97 +1,128 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Configuração do Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyDvrty4zjeuNMYu8TuQuf49LihZWuiAlgE",
-        authDomain: "preciosidades-de-trico.firebaseapp.com",
-        databaseURL: "https://preciosidades-de-trico-default-rtdb.firebaseio.com",
-        projectId: "preciosidades-de-trico",
-        storageBucket: "preciosidades-de-trico.appspot.com",
-        messagingSenderId: "53723311991",
-        appId: "1:53723311991:web:b32af8acafada569287b72"
-    };
+  // *** CONFIGURAÇÃO DO FIREBASE ***
+  const firebaseConfig = {
+    apiKey: "AIzaSyDvrty4zjeuNMYu8TuQuf49LihZWuiAlgE",
+    authDomain: "preciosidades-de-trico.firebaseapp.com",
+    databaseURL: "https://preciosidades-de-trico-default-rtdb.firebaseio.com",
+    projectId: "preciosidades-de-trico",
+    storageBucket: "preciosidades-de-trico.appspot.com",
+    messagingSenderId: "53723311991",
+    appId: "1:53723311991:web:b32af8acafada569287b72"
+  };
 
-    // Inicializar Firebase
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
 
-    const database = firebase.database();
+  const database = firebase.database();
+  const recipesRef = database.ref("recipes");
 
-    // Referências aos elementos
-    const recipeForm = document.getElementById("recipe-form");
-    const recipesList = document.getElementById("recipes");
-    const menu = document.getElementById("menu");
+  // Referências aos elementos
+  const recipeForm = document.getElementById("recipe-form");
+  const recipesList = document.getElementById("recipes");
+  const menu = document.getElementById("menu");
 
-    // Funções para carregar e salvar receitas localmente
-    const loadRecipes = () => JSON.parse(localStorage.getItem("recipes")) || [];
-    const saveRecipes = (recipes) => localStorage.setItem("recipes", JSON.stringify(recipes));
+  // Funções para localStorage
+  const loadLocalRecipes = () => JSON.parse(localStorage.getItem("recipes")) || [];
+  const saveLocalRecipes = (recipes) => localStorage.setItem("recipes", JSON.stringify(recipes));
 
-    // Renderizar menu lateral
-    const renderMenu = (recipes) => {
-        menu.innerHTML = `<li><a href="#inicio">Início</a></li>`;
-        const tags = [...new Set(recipes.flatMap(recipe => recipe.tags))].sort();
-        tags.forEach(tag => {
-            const li = document.createElement("li");
-            li.innerHTML = `<a href="#${tag}">${tag}</a>`;
-            menu.appendChild(li);
+  // Carregar receitas de localStorage e Firebase
+  const loadRecipes = () => {
+    const localRecipes = loadLocalRecipes();
 
-            li.querySelector("a").addEventListener("click", () => {
-                document.querySelectorAll(".recipe").forEach(recipe => {
-                    recipe.style.display = recipe.dataset.tags.includes(tag) ? "block" : "none";
-                });
-            });
-        });
-    };
+    // Carregar receitas do Firebase
+    recipesRef.once("value", (snapshot) => {
+      const firebaseRecipes = snapshot.val() || {};
+      const recipes = Object.values(firebaseRecipes).concat(localRecipes);
 
-    // Renderizar receitas
-    const renderRecipes = (recipes) => {
-        recipesList.innerHTML = "";
-        recipes.forEach((recipe, index) => {
-            const recipeContainer = document.createElement("div");
-            recipeContainer.className = "recipe";
-            recipeContainer.dataset.tags = recipe.tags.join(",");
-            recipeContainer.innerHTML = `
-                <h3>${recipe.title}</h3>
-                <p>${recipe.content}</p>
-                ${recipe.file ? `<a href="${recipe.file.url}" target="_blank" download>${recipe.file.name}</a>` : ""}
-                <button class="remove-recipe" data-index="${index}">Remover</button>
-            `;
+      renderRecipes(recipes);
+      renderMenu(recipes);
+    });
+  };
 
-            recipesList.appendChild(recipeContainer);
-
-            recipeContainer.querySelector(".remove-recipe").addEventListener("click", () => {
-                recipes.splice(index, 1);
-                saveRecipes(recipes);
-                renderRecipes(recipes);
-                renderMenu(recipes);
-            });
-        });
-    };
-
-    // Submissão do formulário
-    recipeForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-
-        const recipes = loadRecipes();
-        const title = document.getElementById("recipe-title").value;
-        const content = document.getElementById("recipe-content").value;
-        const tags = document.getElementById("recipe-tags").value.split(",").map(tag => tag.trim());
-        const fileInput = document.getElementById("recipe-file");
-        const file = fileInput.files[0]
-            ? { name: fileInput.files[0].name, url: URL.createObjectURL(fileInput.files[0]) }
-            : null;
-
-        recipes.push({ title, content, tags, file });
-        saveRecipes(recipes);
-
-        renderRecipes(recipes);
-        renderMenu(recipes);
-        recipeForm.reset();
-        alert("Receita adicionada com sucesso!");
+  // Sincronizar localStorage com Firebase
+  const syncLocalToFirebase = () => {
+    const localRecipes = loadLocalRecipes();
+    localRecipes.forEach((recipe) => {
+      recipesRef.push(recipe);
     });
 
-    // Inicializar a interface
-    const recipes = loadRecipes();
-    renderRecipes(recipes);
-    renderMenu(recipes);
+    // Limpar localStorage após sincronizar
+    localStorage.removeItem("recipes");
+  };
+
+  // Renderizar o menu lateral
+  const renderMenu = (recipes) => {
+    menu.innerHTML = `<li><a href="#inicio">Início</a></li>`;
+    const tags = [...new Set(recipes.map((recipe) => recipe.tags).flat())].sort();
+    tags.forEach((tag) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="#${tag}">${tag}</a>`;
+      menu.appendChild(li);
+
+      li.querySelector("a").addEventListener("click", () => {
+        document.querySelectorAll(".recipe").forEach((recipe) => {
+          recipe.style.display = recipe.dataset.tags.includes(tag) ? "block" : "none";
+        });
+      });
+    });
+  };
+
+  // Renderizar receitas
+  const renderRecipes = (recipes) => {
+    recipesList.innerHTML = "";
+    recipes.forEach((recipe, index) => {
+      const recipeContainer = document.createElement("div");
+      recipeContainer.className = "recipe";
+      recipeContainer.dataset.tags = recipe.tags.join(",");
+      recipeContainer.innerHTML = `
+        <h3>${recipe.title}</h3>
+        <p>${recipe.content}</p>
+        ${recipe.file ? `<a href="${recipe.file.url}" target="_blank" download>${recipe.file.name}</a>` : ""}
+        <button class="remove-recipe" data-index="${index}">Remover</button>
+      `;
+
+      recipesList.appendChild(recipeContainer);
+
+      recipeContainer.querySelector(".remove-recipe").addEventListener("click", () => {
+        const updatedRecipes = loadLocalRecipes().filter((_, i) => i !== index);
+        saveLocalRecipes(updatedRecipes);
+        renderRecipes(updatedRecipes);
+        renderMenu(updatedRecipes);
+      });
+    });
+  };
+
+  // Submissão do formulário
+  recipeForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const localRecipes = loadLocalRecipes();
+    const title = document.getElementById("title").value;
+    const description = document.getElementById("description").value;
+    const tags = document.getElementById("tag").value.split(",").map((tag) => tag.trim());
+    const fileInput = document.getElementById("file");
+    const file = fileInput.files[0]
+      ? { name: fileInput.files[0].name, url: URL.createObjectURL(fileInput.files[0]) }
+      : null;
+
+    const newRecipe = { title, content: description, tags, file };
+
+    // Adicionar receita ao localStorage
+    localRecipes.push(newRecipe);
+    saveLocalRecipes(localRecipes);
+
+    // Sincronizar com Firebase
+    recipesRef.push(newRecipe);
+
+    renderRecipes(localRecipes);
+    renderMenu(localRecipes);
+
+    recipeForm.reset();
+    alert("Receita adicionada com sucesso!");
+  });
+
+  // Inicialização
+  loadRecipes();
+  syncLocalToFirebase();
 });
