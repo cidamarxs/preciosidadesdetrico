@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Receitas e técnicas de tricô exclusivas para você. Descubra mais!">
+    <meta name="keywords" content="tricô, receitas de tricô, artesanato">
     <title>Preciosidades de Tricô</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
@@ -15,53 +17,46 @@
         <h1>Preciosidades de Tricô</h1>
     </header>
 
-    <aside class="sidebar">
-        <h3>Tags</h3>
-        <ul id="tag-menu"></ul>
+    <aside>
+        <nav>
+            <ul id="menu">
+                <li><a href="#inicio">Início</a></li>
+            </ul>
+        </nav>
     </aside>
 
     <main>
-        <section id="login-section">
-            <h2>Login</h2>
-            <div id="login-error" style="display: none; color: red;"></div>
-            <form id="login-form">
-                <input type="email" id="login-email" class="input-field" placeholder="E-mail" required>
-                <input type="password" id="login-password" class="input-field" placeholder="Senha" required>
-                <button type="submit" class="btn">Entrar</button>
-            </form>
-            <p>Não tem uma conta? <button id="show-signup" class="btn">Cadastre-se</button></p>
-        </section>
+        <div id="admin-section">
+            <div id="form-container">
+                <form id="recipe-form" method="post">
+                    <div class="form-group">
+                        <label for="recipe-title">Título:</label>
+                        <input type="text" id="recipe-title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipe-content">Descrição:</label>
+                        <textarea id="recipe-content" name="description" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipe-tags">Tag:</label>
+                        <input type="text" id="recipe-tags" name="tag" placeholder="Ex: Almofadas" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipe-file">Anexo:</label>
+                        <input type="file" id="recipe-file" name="file" accept=".txt">
+                    </div>
+                    <button type="submit">Salvar Receita</button>
+                </form>
+            </div>
+        </div>
 
-        <section id="signup-section" style="display: none;">
-            <h2>Cadastro</h2>
-            <div id="signup-error" style="display: none; color: red;"></div>
-            <form id="signup-form">
-                <input type="text" id="signup-username" class="input-field" placeholder="Nome de usuário" required>
-                <input type="email" id="signup-email" class="input-field" placeholder="E-mail" required>
-                <input type="password" id="signup-password" class="input-field" placeholder="Senha" required>
-                <input type="password" id="signup-password-confirm" class="input-field" placeholder="Confirmar senha" required>
-                <button type="submit" class="btn">Cadastrar</button>
-            </form>
-            <p>Já tem uma conta? <button id="show-login" class="btn">Entrar</button></p>
-        </section>
-
-        <section id="recipes-section" style="display: none;">
-            <button id="logout-btn" class="btn">Sair</button>
-            <h2>Receitas</h2>
-            <ul id="recipe-list"></ul>
-            <form id="add-recipe-form">
-                <input type="text" id="recipe-name" class="input-field" placeholder="Nome da receita" required>
-                <textarea id="recipe-description" class="input-field" placeholder="Descrição da receita" required></textarea>
-                <input type="text" id="tag-input" class="input-field" placeholder="Tags (separadas por vírgula)" required>
-                <input type="file" id="recipe-file" class="input-field">
-                <button type="submit" class="btn">Adicionar Receita</button>
-            </form>
-            <div id="loading-message" style="display: none;">Carregando receitas...</div>
-        </section>
+        <div id="recipes">
+            <!-- Receitas carregadas dinamicamente -->
+        </div>
     </main>
 
     <footer>
-        <p>&copy; 2025 Preciosidades de Tricô by Cida Marxs. Todos os direitos reservados.</p>
+        <p>© 2025 Preciosidades de Tricô by Cida Marxs</p>
     </footer>
 </body>
 </html>
