@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // *** CONFIGURAÇÃO DO FIREBASE ***
+  // Configuração do Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyDvrty4zjeuNMYu8TuQuf49LihZWuiAlgE",
     authDomain: "preciosidades-de-trico.firebaseapp.com",
@@ -17,20 +17,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const database = firebase.database();
   const recipesRef = database.ref("recipes");
 
-  // Referências aos elementos
   const recipeForm = document.getElementById("recipe-form");
   const recipesList = document.getElementById("recipes");
   const menu = document.getElementById("menu");
 
-  // Funções para localStorage
   const loadLocalRecipes = () => JSON.parse(localStorage.getItem("recipes")) || [];
   const saveLocalRecipes = (recipes) => localStorage.setItem("recipes", JSON.stringify(recipes));
 
-  // Carregar receitas de localStorage e Firebase
   const loadRecipes = () => {
     const localRecipes = loadLocalRecipes();
 
-    // Carregar receitas do Firebase
     recipesRef.once("value", (snapshot) => {
       const firebaseRecipes = snapshot.val() || {};
       const recipes = Object.values(firebaseRecipes).concat(localRecipes);
@@ -40,18 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  // Sincronizar localStorage com Firebase
-  const syncLocalToFirebase = () => {
-    const localRecipes = loadLocalRecipes();
-    localRecipes.forEach((recipe) => {
-      recipesRef.push(recipe);
-    });
-
-    // Limpar localStorage após sincronizar
-    localStorage.removeItem("recipes");
-  };
-
-  // Renderizar o menu lateral
   const renderMenu = (recipes) => {
     menu.innerHTML = `<li><a href="#inicio">Início</a></li>`;
     const tags = [...new Set(recipes.map((recipe) => recipe.tags).flat())].sort();
@@ -68,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  // Renderizar receitas
   const renderRecipes = (recipes) => {
     recipesList.innerHTML = "";
     recipes.forEach((recipe, index) => {
@@ -78,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
       recipeContainer.innerHTML = `
         <h3>${recipe.title}</h3>
         <p>${recipe.content}</p>
-        ${recipe.file ? `<a href="${recipe.file.url}" target="_blank" download>${recipe.file.name}</a>` : ""}
+        ${recipe.file ? `<a href="${recipe.file.url}" target="_blank">${recipe.file.name}</a>` : ""}
         <button class="remove-recipe" data-index="${index}">Remover</button>
       `;
 
@@ -93,7 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  // Submissão do formulário
   recipeForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
@@ -108,11 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const newRecipe = { title, content: description, tags, file };
 
-    // Adicionar receita ao localStorage
     localRecipes.push(newRecipe);
     saveLocalRecipes(localRecipes);
-
-    // Sincronizar com Firebase
     recipesRef.push(newRecipe);
 
     renderRecipes(localRecipes);
@@ -122,7 +101,5 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("Receita adicionada com sucesso!");
   });
 
-  // Inicialização
   loadRecipes();
-  syncLocalToFirebase();
 });

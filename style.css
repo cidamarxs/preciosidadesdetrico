@@ -60,7 +60,7 @@ footer {
 }
 
 /* Botões */
-.btn { /* Classe para botões */
+.btn, button { /* Classe para botões */
     padding: 10px 20px;
     background-color: #D81B60;
     color: white;
