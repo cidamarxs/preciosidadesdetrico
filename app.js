@@ -1,22 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Configuração do Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyDvrty4zjeuNMYu8TuQuf49LihZWuiAlgE",
-    authDomain: "preciosidades-de-trico.firebaseapp.com",
-    databaseURL: "https://preciosidades-de-trico-default-rtdb.firebaseio.com",
-    projectId: "preciosidades-de-trico",
-    storageBucket: "preciosidades-de-trico.appspot.com",
-    messagingSenderId: "53723311991",
-    appId: "1:53723311991:web:b32af8acafada569287b72"
-  };
-
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-
-  const database = firebase.database();
-  const recipesRef = database.ref("recipes");
-
   const recipeForm = document.getElementById("recipe-form");
   const recipesList = document.getElementById("recipes");
   const menu = document.getElementById("menu");
@@ -26,14 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const loadRecipes = () => {
     const localRecipes = loadLocalRecipes();
-
-    recipesRef.once("value", (snapshot) => {
-      const firebaseRecipes = snapshot.val() || {};
-      const recipes = Object.values(firebaseRecipes).concat(localRecipes);
-
-      renderRecipes(recipes);
-      renderMenu(recipes);
-    });
+    renderRecipes(localRecipes);
+    renderMenu(localRecipes);
   };
 
   const renderMenu = (recipes) => {
@@ -92,13 +68,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     localRecipes.push(newRecipe);
     saveLocalRecipes(localRecipes);
-    recipesRef.push(newRecipe);
+
+    // Exemplo de como enviar os dados para o Netlify Form
+    const formData = new FormData(recipeForm);
+    fetch("/", {
+      method: "POST",
+      body: formData,
+    })
+      .then(() => {
+        alert("Receita enviada com sucesso!");
+        recipeForm.reset();
+      })
+      .catch((error) => {
+        console.error("Erro ao enviar a receita:", error);
+      });
 
     renderRecipes(localRecipes);
     renderMenu(localRecipes);
-
-    recipeForm.reset();
-    alert("Receita adicionada com sucesso!");
   });
 
   loadRecipes();
