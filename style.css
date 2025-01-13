@@ -1,6 +1,6 @@
 /* Importação das fontes do Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Lucida+Calligraphy&family=Times+New+Roman&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap'); /* Adicionei uma fonte mais legível para o código */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
 
 /* Estilos gerais */
 * {
@@ -9,25 +9,25 @@
 
 body, main {
     font-family: 'Times New Roman', serif;
-    background: linear-gradient(to bottom right, #F8BBD0, #F1C6D2);
-    color: #D81B60;
+    background: linear-gradient(to bottom right, #F8BBD0, #F1C6D2); /* Tons de rosa */
+    color: #D81B60; /* Rosa forte */
     margin: 0;
     padding: 0;
-    min-height: 100vh; /* Garante que o body ocupa a altura total da tela */
+    min-height: 100vh;
     display: flex;
     flex-direction: column; /* Para o footer ficar sempre embaixo */
 }
 
 main {
-    flex: 1; /* Permite que o main cresça para ocupar o espaço disponível */
+    flex: 1;
     padding: 20px;
 }
 
 /* Cabeçalho */
 header {
     font-family: 'Lucida Calligraphy', cursive;
-    background-color: #E91E63;
-    color: #F8BBD0;
+    background-color: #E91E63; /* Rosa escuro */
+    color: #F8BBD0; /* Rosa claro */
     padding: 20px;
     text-align: center;
     border-radius: 15px;
@@ -36,7 +36,7 @@ header {
 /* Títulos */
 h2, h3 {
     font-family: 'Lucida Calligraphy', cursive;
-    color: #E91E63;
+    color: #E91E63; /* Rosa escuro */
     margin-bottom: 10px;
 }
 
@@ -51,18 +51,18 @@ footer {
 }
 
 /* Formulários e inputs */
-.input-field { /* Classe para inputs */
+.input-field {
     padding: 10px;
     margin: 10px 0;
     width: 100%;
-    border: 1px solid #F1C6D2;
+    border: 1px solid #F1C6D2; /* Rosa claro */
     border-radius: 10px;
 }
 
 /* Botões */
-.btn, button { /* Classe para botões */
+.btn, button {
     padding: 10px 20px;
-    background-color: #D81B60;
+    background-color: #D81B60; /* Rosa vibrante */
     color: white;
     border: none;
     border-radius: 10px;
@@ -70,7 +70,7 @@ footer {
 }
 
 .btn:hover {
-    background-color: #C2185B;
+    background-color: #C2185B; /* Rosa mais escuro no hover */
 }
 
 /* Seções (login, cadastro, receitas) */
@@ -79,7 +79,7 @@ footer {
     padding: 20px;
     border-radius: 15px;
     margin: 20px auto;
-    max-width: 400px; /* Largura máxima para os formulários */
+    max-width: 400px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -100,11 +100,72 @@ footer {
 .sidebar a {
     color: #F8BBD0;
     text-decoration: none;
-    display: block; /* Para os links ocuparem a largura total */
+    display: block;
     padding: 5px 10px;
     border-radius: 5px;
     margin-bottom: 5px;
 }
 
 .sidebar a:hover {
-    background-color: #F1C
+    background-color: #F1C6D2; /* Rosa claro */
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    body, main {
+        padding: 10px;
+        font-size: 14px; /* Reduz o tamanho do texto */
+    }
+
+    header, footer {
+        padding: 15px;
+        font-size: 16px; /* Texto menor */
+    }
+
+    #login-section, #signup-section, #recipes-section, #add-recipe-form {
+        max-width: 300px; /* Formulários mais compactos */
+    }
+
+    .btn, button {
+        padding: 8px 16px; /* Botões menores */
+    }
+
+    .sidebar {
+        padding: 10px;
+    }
+
+    .sidebar a {
+        padding: 5px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    body, main {
+        font-size: 12px; /* Texto menor para telas pequenas */
+    }
+
+    header, footer {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    #login-section, #signup-section, #recipes-section, #add-recipe-form {
+        padding: 15px;
+        max-width: 280px;
+    }
+
+    .btn, button {
+        padding: 6px 12px; /* Botões ainda menores */
+    }
+
+    .sidebar {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .sidebar a {
+        padding: 4px;
+        font-size: 12px;
+    }
+}
