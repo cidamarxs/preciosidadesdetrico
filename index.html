@@ -19,8 +19,8 @@
     <main>
         <section id="formulario">
             <h2>Adicionar Receita</h2>
-            <!-- Atualizado para Netlify Forms -->
-            <form id="recipe-form" name="recipe-form" method="POST" data-netlify="true">
+            <!-- Formulário com configuração correta para envio de arquivos -->
+            <form id="recipe-form" name="recipe-form" method="POST" data-netlify="true" enctype="multipart/form-data">
                 <label for="title">Título:</label>
                 <input type="text" id="title" name="title" required>
                 <br>

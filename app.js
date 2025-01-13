@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Exemplo de como enviar os dados para o Netlify Form
     const formData = new FormData(recipeForm);
+    console.log("Enviando FormData:", formData); // Verifica os dados que estão sendo enviados
     fetch("/", {
       method: "POST",
       body: formData,
