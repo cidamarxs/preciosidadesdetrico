@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Configuração do Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyDvrty4zjeuNMYu8TuQuf49LihZWuiAlgE",
     authDomain: "preciosidades-de-trico.firebaseapp.com",
@@ -21,15 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const recipesList = document.getElementById("recipes");
   const menu = document.getElementById("menu");
 
-  const loadLocalRecipes = () => JSON.parse(localStorage.getItem("receitas")) || [];
-  const saveLocalRecipes = (receitas) => localStorage.setItem("receitas", JSON.stringify(receitas));
-
   const loadRecipes = () => {
-    const localRecipes = loadLocalRecipes();
-
     recipesRef.once("value", (snapshot) => {
       const firebaseRecipes = snapshot.val() || {};
-      const receitas = Object.values(firebaseRecipes).concat(localRecipes);
+      const receitas = Object.entries(firebaseRecipes).map(([id, data]) => ({ id, ...data }));
+      console.log('Receitas carregadas do Firebase:', receitas);
       renderRecipes(receitas);
       renderMenu(receitas);
     });
@@ -56,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const renderRecipes = (receitas) => {
     recipesList.innerHTML = "";
 
-    receitas.forEach((recipe, index) => {
+    receitas.forEach((recipe) => {
       const recipeContainer = document.createElement("div");
       recipeContainer.className = "recipe";
       recipeContainer.dataset.tags = recipe.tags.join(",");
@@ -64,50 +59,40 @@ document.addEventListener("DOMContentLoaded", () => {
       recipeContainer.innerHTML = `
         <h3>${recipe.title}</h3>
         <p>${recipe.content}</p>
-        ${
-          recipe.file
-            ? `<a href="${recipe.file.url}" target="_blank">${recipe.file.name}</a>`
-            : ""
-        }
-        <button class="remove-recipe" data-index="${index}">Remover</button>
+        ${recipe.file ? `<a href="${recipe.file.url}" target="_blank">${recipe.file.name}</a>` : ""}
+        <button class="remove-recipe" data-id="${recipe.id}">Remover</button>
       `;
 
       recipesList.appendChild(recipeContainer);
 
-      recipeContainer.querySelector(".remove-recipe").addEventListener("click", () => {
-        const updatedRecipes = loadLocalRecipes().filter((_, i) => i !== index);
-        saveLocalRecipes(updatedRecipes);
-        renderRecipes(updatedRecipes);
-        renderMenu(updatedRecipes);
+      recipeContainer.querySelector(".remove-recipe").addEventListener("click", async () => {
+        const recipeId = recipeContainer.querySelector(".remove-recipe").dataset.id;
+        await recipesRef.child(recipeId).remove();
+        console.log('Receita removida do Firebase:', recipeId);
+
+        loadRecipes(); // Recarrega as receitas após remoção
       });
     });
   };
 
-  recipeForm.addEventListener("submit", (event) => {
+  recipeForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-
-    const localRecipes = loadLocalRecipes();
 
     const title = document.getElementById("title").value;
     const description = document.getElementById("description").value;
     const tags = document.getElementById("tag").value.split(",").map((tag) => tag.trim());
     const fileInput = document.getElementById("file");
-    const file = fileInput.files[0]
-      ? { name: fileInput.files[0].name, url: URL.createObjectURL(fileInput.files[0]) }
-      : null;
+    const file = fileInput.files[0] ? { name: fileInput.files[0].name, url: URL.createObjectURL(fileInput.files[0]) } : null;
 
     const newRecipe = { title, content: description, tags, file };
+    const newRecipeRef = await recipesRef.push(newRecipe);
+    console.log('Nova receita adicionada ao Firebase:', newRecipe);
 
-    localRecipes.push(newRecipe);
-    saveLocalRecipes(localRecipes);
-    recipesRef.push(newRecipe);
-
-    renderRecipes(localRecipes);
-    renderMenu(localRecipes);
+    loadRecipes(); // Recarrega as receitas após adição
 
     recipeForm.reset();
     alert("Receita adicionada com sucesso!");
   });
 
-  loadRecipes();
+    loadRecipes();
 });
