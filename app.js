@@ -1,98 +1,101 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const firebaseConfig = {
-    apiKey: "AIzaSyDvrty4zjeuNMYu8TuQuf49LihZWuiAlgE",
-    authDomain: "preciosidades-de-trico.firebaseapp.com",
-    databaseURL: "https://preciosidades-de-trico-default-rtdb.firebaseio.com",
-    projectId: "preciosidades-de-trico",
-    storageBucket: "preciosidades-de-trico.appspot.com",
-    messagingSenderId: "53723311991",
-    appId: "1:53723311991:web:b32af8acafada569287b72"
+// Configuração do Firebase
+var firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "seu-dominio.firebaseapp.com",
+  databaseURL: "https://seu-dominio.firebaseio.com",
+  projectId: "seu-projeto-id",
+  storageBucket: "seu-bucket.appspot.com",
+  messagingSenderId: "seu-messaging-id",
+  appId: "seu-app-id"
+};
+
+// Inicializando o Firebase
+firebase.initializeApp(firebaseConfig);
+var database = firebase.database();
+
+// Função para salvar uma nova receita
+document.getElementById("recipe-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  var title = document.getElementById("title").value;
+  var description = document.getElementById("description").value;
+  var tags = document.getElementById("tag").value.split(",").map(tag => tag.trim());
+  var file = document.getElementById("file").files[0];
+
+  var newRecipeRef = database.ref("recipes").push();
+
+  var recipeData = {
+      title: title,
+      description: description,
+      tags: tags,
+      timestamp: Date.now()
   };
 
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+  if (file) {
+      var fileReader = new FileReader();
+      fileReader.onload = function (e) {
+          var fileData = e.target.result;
+
+          // Armazenar o arquivo no Firebase Storage (caso necessário)
+          newRecipeRef.set({
+              ...recipeData,
+              fileData: fileData
+          });
+
+          // Redirecionar para abrir a receita em uma nova aba
+          openInNewTab(fileData);
+      };
+
+      fileReader.readAsDataURL(file);
+  } else {
+      newRecipeRef.set(recipeData);
+      alert("Receita salva!");
   }
-
-  const database = firebase.database();
-  const recipesRef = database.ref("receitas");
-
-  const recipeForm = document.getElementById("recipe-form");
-  const recipesList = document.getElementById("recipes");
-  const menu = document.getElementById("menu");
-
-  const loadRecipes = () => {
-    recipesRef.once("value", (snapshot) => {
-      const firebaseRecipes = snapshot.val() || {};
-      const receitas = Object.entries(firebaseRecipes).map(([id, data]) => ({ id, ...data }));
-      console.log('Receitas carregadas do Firebase:', receitas);
-      renderRecipes(receitas);
-      renderMenu(receitas);
-    });
-  };
-
-  const renderMenu = (receitas) => {
-    menu.innerHTML = '<li><a href="#inicio">Início</a></li>';
-
-    const tags = [...new Set(receitas.map((recipe) => recipe.tags).flat())].sort();
-
-    tags.forEach((tag) => {
-      const li = document.createElement("li");
-      li.innerHTML = `<a href="#${tag}">${tag}</a>`;
-      menu.appendChild(li);
-
-      li.querySelector("a").addEventListener("click", () => {
-        document.querySelectorAll(".recipe").forEach((recipe) => {
-          recipe.style.display = recipe.dataset.tags.includes(tag) ? "block" : "none";
-        });
-      });
-    });
-  };
-
-  const renderRecipes = (receitas) => {
-    recipesList.innerHTML = "";
-
-    receitas.forEach((recipe) => {
-      const recipeContainer = document.createElement("div");
-      recipeContainer.className = "recipe";
-      recipeContainer.dataset.tags = recipe.tags.join(",");
-
-      recipeContainer.innerHTML = `
-        <h3>${recipe.title}</h3>
-        <p>${recipe.content}</p>
-        ${recipe.file ? `<a href="${recipe.file.url}" target="_blank">${recipe.file.name}</a>` : ""}
-        <button class="remove-recipe" data-id="${recipe.id}">Remover</button>
-      `;
-
-      recipesList.appendChild(recipeContainer);
-
-      recipeContainer.querySelector(".remove-recipe").addEventListener("click", async () => {
-        const recipeId = recipeContainer.querySelector(".remove-recipe").dataset.id;
-        await recipesRef.child(recipeId).remove();
-        console.log('Receita removida do Firebase:', recipeId);
-
-        loadRecipes(); // Recarrega as receitas após remoção
-      });
-    });
-  };
-
-  recipeForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const title = document.getElementById("title").value;
-    const description = document.getElementById("description").value;
-    const tags = document.getElementById("tag").value.split(",").map((tag) => tag.trim());
-    const fileInput = document.getElementById("file");
-    const file = fileInput.files[0] ? { name: fileInput.files[0].name, url: URL.createObjectURL(fileInput.files[0]) } : null;
-
-    const newRecipe = { title, content: description, tags, file };
-    const newRecipeRef = await recipesRef.push(newRecipe);
-    console.log('Nova receita adicionada ao Firebase:', newRecipe);
-
-    loadRecipes(); // Recarrega as receitas após adição
-
-    recipeForm.reset();
-    alert("Receita adicionada com sucesso!");
-  });
-
-    loadRecipes();
 });
+
+// Função para exibir as receitas
+function displayRecipes() {
+  var recipesRef = database.ref("recipes");
+  recipesRef.on("child_added", function (snapshot) {
+      var recipe = snapshot.val();
+      var recipesDiv = document.getElementById("recipes");
+
+      var recipeDiv = document.createElement("div");
+      recipeDiv.classList.add("recipe");
+
+      var title = document.createElement("h3");
+      title.textContent = recipe.title;
+      recipeDiv.appendChild(title);
+
+      var description = document.createElement("p");
+      description.textContent = recipe.description;
+      recipeDiv.appendChild(description);
+
+      var tags = document.createElement("p");
+      tags.textContent = "Tags: " + recipe.tags.join(", ");
+      recipeDiv.appendChild(tags);
+
+      recipesDiv.appendChild(recipeDiv);
+  });
+}
+
+// Função para abrir a receita em uma nova aba
+function openInNewTab(fileData) {
+  var newWindow = window.open();
+  newWindow.document.write(`
+      <html>
+          <head>
+              <title>Receita de Tricô</title>
+          </head>
+          <body>
+              <h1>Receita</h1>
+              <pre>${fileData}</pre>
+          </body>
+      </html>
+  `);
+}
+
+// Carregar as receitas ao iniciar
+window.onload = function () {
+  displayRecipes();
+};
